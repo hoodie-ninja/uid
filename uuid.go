@@ -122,7 +122,7 @@ func (u UUID) shifted() (out [16]byte) {
 	binary.BigEndian.PutUint32(out[4:8], ints[1])
 	binary.BigEndian.PutUint32(out[8:12], ints[2])
 	binary.BigEndian.PutUint32(out[12:16], ints[3])
-	return
+	return //nolint:gofumpt // covered by nonamedreturns
 }
 
 // Compare is a helper for sorting/deduping by monotonic time. Note: Sorting non-v7 IDs is a design flaw.
