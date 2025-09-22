@@ -58,10 +58,8 @@ func BenchmarkParseNil(b *testing.B) {
 }
 
 func BenchmarkParseMax(b *testing.B) {
-	// ffffffff-ffff-ffff-ffff-ffffffffffff
 	for b.Loop() {
 		_, _ = uid.Parse(uid.MaxCanonical)
-		// _, _ = uid.Parse("Ffffffff-ffff-ffff-ffff-ffffffffffff")
 	}
 }
 
