@@ -65,7 +65,7 @@ func TestSanity(t *testing.T) {
 	// test that times were generated in order
 	assert.True(t, slices.IsSortedFunc(ts1, uid.Compare))
 	// test uuids are unique (includes randomness)
-	assert.Exactly(t, len(ts1), len(slices.Compact(ts1)))
+	assert.Len(t, ts1, len(slices.Compact(ts1)))
 }
 
 func TestV7StrictIsV7(t *testing.T) {
@@ -110,7 +110,7 @@ func TestSanityBatching(t *testing.T) {
 	// test that times were generated in order
 	assert.True(t, slices.IsSortedFunc(ts1, uid.Compare))
 	// test uuids are unique (includes randomness)
-	assert.Exactly(t, len(ts1), len(slices.Compact(ts1)))
+	assert.Len(t, ts1, len(slices.Compact(ts1)))
 	// assert times are strictly monotonic
-	assert.Exactly(t, len(ts1), len(ts))
+	assert.Len(t, ts1, len(ts))
 }
