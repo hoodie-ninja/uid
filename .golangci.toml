@@ -1,41 +1,64 @@
+version = '2'
+
 [run]
 allow-parallel-runners = true
-timeout = "5m"
-
-[linters]
-# Use everything but the style-related linters by default
-presets = ["bugs", "comment", "complexity", "error", "format", "import", "metalinter","module",
-  "performance", "sql", "style", "test", "unused",]
-
-disable = [
-  "wsl", # leave whitespace shaping to personal editor config
-  "nlreturn", # leave whitespace shaping to personal editor config
-  "varnamelen", # forces long names in short scopes
-  "paralleltest", # test runner runs tests in parallel by default
-  "forcetypeassert", # covered by errcheck
-  "exhaustruct", # structs must be allowed to use default values for terseness
-  "depguard", # allow list maintained elsewhere
-  "gomodguard", # allow list maintained elsewhere
-]
-
-[linters-settings.errcheck]
-check-type-assertions = true # should try to avoid panic scenario
-check-blank = true # don't ignore errors
-
-[linters-settings.gofumpt]
-extra-rules = true # aggressive fumpt
-
-[linters-settings.funlen]
-lines = -1 # only count statements, blank lines and comments shouldn't penalize a func
-
-[linters-settings.nolintlint]
-require-specific = true
-require-explanation = true
-
-# [linters-settings.gci]
-# sections = ["standard", "prefix(github.com/janrain/gram)", "default"]
-# custom-order = true
 
 [issues]
-exclude-use-default = false # skip golang-ci linter omissions
-exclude-dirs = ["vendor",] # ignore vendor folder
+max-same-issues = 0
+
+[linters]
+default = 'all'
+disable = [
+  'depguard',
+  'exhaustruct',
+  'forcetypeassert',
+  'gomodguard',
+  'nlreturn',
+  'noinlineerr',
+  'paralleltest',
+  'varnamelen',
+  'wsl',
+  'wsl_v5'
+]
+
+[linters.settings]
+[linters.settings.errcheck]
+check-type-assertions = true
+check-blank = true
+
+[linters.settings.funlen]
+lines = -1
+
+[linters.settings.nolintlint]
+require-explanation = true
+require-specific = true
+
+[linters.exclusions]
+generated = 'strict'
+paths = [
+  'vendor',
+  'third_party$',
+  'builtin$',
+  'examples$'
+]
+
+[formatters]
+enable = [
+  'gci',
+  'gofmt',
+  'gofumpt',
+  'goimports'
+]
+
+[formatters.settings]
+[formatters.settings.gofumpt]
+extra-rules = true
+
+[formatters.exclusions]
+generated = 'lax'
+paths = [
+  'vendor',
+  'third_party$',
+  'builtin$',
+  'examples$'
+]

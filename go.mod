@@ -1,11 +1,11 @@
 module github.com/byron-janrain/uid
 
-go 1.23
+go 1.25
 
 require (
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/google/uuid v1.6.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.11.1
 )
 
 require (
