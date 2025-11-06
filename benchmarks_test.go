@@ -76,13 +76,13 @@ func BenchmarkParseGoogle4(b *testing.B) {
 }
 
 func BenchmarkParseGofrs4(b *testing.B) {
-	for range b.N {
+	for b.Loop() {
 		_, _ = gofrsuuid.FromString(ref4)
 	}
 }
 
 func BenchmarkParse7(b *testing.B) {
-	for range b.N {
+	for b.Loop() {
 		_, _ = uid.Parse(ref7)
 	}
 }

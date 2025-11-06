@@ -25,7 +25,7 @@ func (u UUID) Time() time.Time {
 	return time.Unix(0, ms*m+unslot(ra))
 }
 
-//nolint:mnd // locality of behavior
+//nolint:mnd,gosec // locality of behavior, falst positive index out of range
 func make7(tickFn func() int64) UUID {
 	var b [16]byte
 	ns := tickFn()
