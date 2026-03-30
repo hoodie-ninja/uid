@@ -29,7 +29,7 @@ func ToPythonShort(u UUID) string {
 	out, q, r := pythonShortBase(), new(big.Int).SetBytes(u.b[:]), new(big.Int)
 	for i := pythonShortLen - 1; i > -1; i-- {
 		q.QuoRem(q, big57, r)
-		out[i] = b57encRef[r.Int64()] //nolint:gosec // false positive, i ∈ [0,21] and out is [22]rune
+		out[i] = b57encRef[r.Int64()]
 		if q.Int64() == 0 {
 			break
 		}
