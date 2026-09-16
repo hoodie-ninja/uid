@@ -2,6 +2,7 @@
 package uid_test
 
 import (
+	"strings"
 	"testing"
 
 	gofrsuuid "github.com/gofrs/uuid"
@@ -36,6 +37,13 @@ func BenchmarkV7(b *testing.B) {
 func BenchmarkV7Strict(b *testing.B) {
 	for b.Loop() {
 		_ = uid.NewV7Strict()
+	}
+}
+
+func BenchmarkStdlibRoundTrip(b *testing.B) {
+	id := uid.NewV7()
+	for b.Loop() {
+		_ = uid.FromStdlib(uid.ToStdlib(id))
 	}
 }
 
@@ -96,5 +104,33 @@ func BenchmarkParseGoogle7(b *testing.B) {
 func BenchmarkParseGofrs7(b *testing.B) {
 	for b.Loop() {
 		_, _ = gofrsuuid.FromString(ref7)
+	}
+}
+
+func BenchmarkCompact32(b *testing.B) {
+	id := uid.NewV4()
+	for b.Loop() {
+		_ = id.Compact32()
+	}
+}
+
+func BenchmarkCompact64(b *testing.B) {
+	id := uid.NewV4()
+	for b.Loop() {
+		_ = id.Compact64()
+	}
+}
+
+func BenchmarkParseCompact32Lower(b *testing.B) {
+	s := strings.ToLower(ref4b32)
+	for b.Loop() {
+		_, _ = uid.Parse(s)
+	}
+}
+
+func BenchmarkParseCompact32Upper(b *testing.B) {
+	s := strings.ToUpper(ref4b32)
+	for b.Loop() {
+		_, _ = uid.Parse(s)
 	}
 }

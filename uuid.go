@@ -41,8 +41,12 @@ func (u *UUID) UnmarshalBinary(b []byte) error {
 	return ErrInvalid
 }
 
-// canonLen is the length of the canonical representation.
-const canonLen = len(NilCanonical)
+// lengths of the representations Nil and Max are written out in.
+const (
+	canonLen     = len(NilCanonical)
+	compact32Len = len(NilCompact32)
+	compact64Len = len(NilCompact64)
+)
 
 // String implements fmt.Stringer. Returns canonical RFC-4122 representation.
 func (u UUID) String() string {
@@ -82,20 +86,24 @@ func (u *UUID) UnmarshalJSON(b []byte) error {
 	return ErrInvalid
 }
 
-// Compact32 returns NCName Base32 representation.
+// Compact32 returns the lower-case NCName Base32 representation.
 func (u UUID) Compact32() string {
 	b := u.shifted()
 	b[15] >>= 1
-	//nolint:mnd // lob
-	return string(u.Version()+65) + base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(b[:])[0:25]
+	var out [compact32Len + 1]byte // encoding 16b yields one extra
+	b32enc.Encode(out[1:], b[:])   // discard extra
+	out[0] = b32Alphabet[u.Version()]
+	return string(out[:compact32Len])
 }
 
 // Compact64 returns NCName Base64 representation.
 func (u UUID) Compact64() string {
 	b := u.shifted()
 	b[15] >>= 2
-	//nolint:mnd // lob
-	return string(u.Version()+65) + base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(b[:])[0:21]
+	var out [compact64Len + 1]byte
+	base64.RawURLEncoding.Encode(out[1:], b[:])
+	out[0] = byte(u.Version()) + 'A'
+	return string(out[:compact64Len])
 }
 
 // Nil constructs a Nil UUID (all 0).
@@ -109,6 +117,12 @@ func Max() UUID { return UUID{bytesMax /*copy*/} }
 
 // IsMax returns true when u is the Max UUID.
 func (u UUID) IsMax() bool { return u.b == bytesMax }
+
+// b32Alphabet is RFC 4648 base32.
+const b32Alphabet = "abcdefghijklmnopqrstuvwxyz234567"
+
+//nolint:gochecknoglobals // lookup table
+var b32enc = base32.NewEncoding(b32Alphabet).WithPadding(base32.NoPadding)
 
 // b2h maps a byte to its two lowercase hex digits, the encoding counterpart of c2h.
 //
@@ -159,6 +173,6 @@ func (u UUID) shifted() (out [16]byte) {
 	return
 }
 
-// Compare implements slices.SortFunc for the UUID type. v7 UUIDs sort by embedded time (unix_ts_ms and rand_a);
-// random bits break ties so distinct UUIDs never compare equal.
+// Compare implements slices.SortFunc for the UUID type.
+// v7s sort by embedded time to the 1/4096 ms (rand_a) then by the remaining random bits.
 func Compare(a, b UUID) int { return bytes.Compare(a.b[:], b.b[:]) }

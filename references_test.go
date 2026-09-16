@@ -5,7 +5,6 @@ import (
 	"embed"
 	"encoding/csv"
 	"io"
-	"strings"
 	"testing"
 
 	"github.com/hoodie-ninja/uid"
@@ -40,10 +39,10 @@ func init() {
 
 const (
 	ref4    = "01867b2c-a0dd-459c-98d7-89e545538d6c"
-	ref4b32 = "EAGDHWLFA3VM4RV4J4VCVHDLMJ"
+	ref4b32 = "eagdhwlfa3vm4rv4j4vcvhdlmj" // draft-taylor-uuid-ncname-01 appendix A
 	ref4b64 = "EAYZ7LKDdWcjXieVFU41sJ"
 	ref7    = "0191e843-b452-7ac4-b853-8ee3953a28af"
-	ref7b32 = "HAGI6QQ5UKKWEQU4O4OKTUKFPL"
+	ref7b32 = "hagi6qq5ukkwequ4o4oktukfpl"
 	ref7b64 = "HAZHoQ7RSrEhTjuOVOiivL"
 )
 
@@ -69,7 +68,7 @@ func TestParseCompactSamples(t *testing.T) {
 			assert.Exactly(t, uid.Version4, id.Version())
 			assert.Exactly(t, uid.Variant9562, id.Variant())
 			assert.Exactly(t, sample.Canonical, id.String())
-			assert.True(t, strings.EqualFold(sample.B32, id.Compact32()))
+			assert.Exactly(t, sample.B32, id.Compact32())
 			assert.Exactly(t, sample.B64, id.Compact64())
 		}
 		tested++
