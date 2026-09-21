@@ -44,15 +44,8 @@ New Sortable UUID (v7 with "method 3", extended precision monotonicity)
 id := uid.NewV7()
 ```
 
-New Sortable UUID (v7 with "method 3" monotonicity and strict process-local uniqueness... You don't want this, but it's
-here if you need it.)
-```go
-id := uid.NewV7Strict()
-```
-
-Strictness means each UUID gets a unique real-time slot (1/4096 ms). Due to maths, this makes the ceiling one UUID per
-~244ns (~4million/sec). On MacOS the clock granularity is ~1µs so benchmarks look bad compared to OSes with finer grain
-clocks.
+Note: `uid.NewV7Strict` is now deprecated. If you need single-node monotonically sortable ids, use
+`uid.FromStdlib(uuid.NewV7())`
 
 ## Databases
 
@@ -90,6 +83,9 @@ constrained grammars.
 
 `UUID.Compact64()` and `UUID.Compact32()` return the Base64 and Base32 NCName encoded values, respectively.
 
+Per the draft, `Compact32()` emits lower-case, and `Parse` accepts any Base32. Base64 is case-sensitive with upper-case
+bookends.
+
 These formats achieve or preserve the goals of compaction, URL-safety, and CSS/DOM identifier safety.
 
 More info: https://datatracker.ietf.org/doc/draft-taylor-uuid-ncname/
@@ -122,5 +118,14 @@ the ergonomics of fallible constructors. Now that uuid has been added to Go (1.2
 the implementors still leaned on the "too much crypto" solution. Moreover, the purely sentinel error that standard lib
 Parse returns is unexported so callers cannot errors.Is against it even if they did want it.
 
-This library will continue to provide an opinionated parser and a richer data-type tool. But adopt the core type so
-importers can easily jump between the two.
+This library will continue to provide an opinionated parser and a richer data-type tool. `ToStdlib` and `FromStdlib`
+move values between the two by copy. Use whatever generator you want, import uid to add codec/sql support.
+
+```go
+id := uid.FromStdlib(uuid.NewV7()) // stdlib generation, uid features
+su := uid.ToStdlib(uid.NewV4())    // uid generation, stdlib API
+```
+
+Note: Stdlib v7 monotonic still uses "too much crypto" AND has a slower implementation than I'd like. If there's
+interest I can bring back `NewV7Strict()` as `NewV7Monotonic()` with a `crypto/rand`-free implementation that's about
+3x faster than stdlib. But you're already wrong if you think you need more than `NewV7()`.

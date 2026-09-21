@@ -1,6 +1,6 @@
 module github.com/hoodie-ninja/uid
 
-go 1.26
+go 1.27
 
 require (
 	github.com/gofrs/uuid v4.4.0+incompatible

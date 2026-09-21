@@ -101,12 +101,13 @@ func TestParseCanonicalBad(t *testing.T) {
 
 func TestParseCompact32(t *testing.T) {
 	checkString2Bytes(t, uid.NilCompact32, uid.Nil().Bytes())
+	checkString2Bytes(t, strings.ToUpper(uid.NilCompact32), uid.Nil().Bytes())
 	checkString2Bytes(t, uid.MaxCompact32, uid.Max().Bytes())
-	checkString2Bytes(t, strings.ToLower(uid.MaxCompact32), uid.Max().Bytes())
+	checkString2Bytes(t, strings.ToUpper(uid.MaxCompact32), uid.Max().Bytes())
 	checkString2Bytes(t, ref4b32, ref4Bytes)
-	checkString2Bytes(t, strings.ToLower(ref4b32), ref4Bytes)
+	checkString2Bytes(t, strings.ToUpper(ref4b32), ref4Bytes)
 	checkString2Bytes(t, ref7b32, ref7Bytes)
-	checkString2Bytes(t, strings.ToLower(ref7b32), ref7Bytes)
+	checkString2Bytes(t, strings.ToUpper(ref7b32), ref7Bytes)
 	rfj32, err := json.Marshal(ref4b32)
 	require.NoError(t, err)
 	checkString2Bytes(t, string(rfj32), ref4Bytes)
@@ -184,7 +185,7 @@ func TestParseCompactCRLF(t *testing.T) {
 
 func TestParseCompact32Multibyte(t *testing.T) {
 	// 26 bytes but 25 runes ('ſ' uppercases to ASCII 'S'): must fail, not part-decode into an invalid UUID
-	assertBadTxt(t, []rune("Eſ"+ref4b32[3:]))
+	assertBadTxt(t, []rune("eſ"+ref4b32[3:]))
 }
 
 func TestParseCompact64Multibyte(t *testing.T) {

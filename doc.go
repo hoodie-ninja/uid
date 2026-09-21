@@ -15,7 +15,7 @@ const (
 	MaxCanonical = "ffffffff-ffff-ffff-ffff-ffffffffffff"
 
 	// MaxCompact32 is the canonical NCName Compact Base32 "Max" UUID.
-	MaxCompact32 = "P777777777777777777777777P"
+	MaxCompact32 = "p777777777777777777777777p"
 
 	// MaxCompact64 is the canonical NCName Compact Base64 "Max" UUID.
 	MaxCompact64 = "P____________________P"
@@ -27,7 +27,7 @@ const (
 	NilCanonical = "00000000-0000-0000-0000-000000000000"
 
 	// NilCompact32 is the canonical NCName Compact Base32 "Nil" UUID.
-	NilCompact32 = "AAAAAAAAAAAAAAAAAAAAAAAAAA"
+	NilCompact32 = "aaaaaaaaaaaaaaaaaaaaaaaaaa"
 
 	// NilCompact64 is the canonical NCName Compact Base64 "Nil" UUID.
 	NilCompact64 = "AAAAAAAAAAAAAAAAAAAAAA"

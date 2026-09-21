@@ -15,10 +15,10 @@ import (
 
 func TestConsts(t *testing.T) {
 	assert.Exactly(t, uid.MaxCanonical, strings.ToLower(uid.MaxCanonical))
-	assert.Exactly(t, uid.MaxCompact32, strings.ToUpper(uid.MaxCompact32))
+	assert.Exactly(t, uid.MaxCompact32, strings.ToLower(uid.MaxCompact32))
 	assert.Exactly(t, uid.MaxCompact64, strings.ToUpper(uid.MaxCompact64))
 	assert.Exactly(t, uid.NilCanonical, strings.ToLower(uid.NilCanonical))
-	assert.Exactly(t, uid.NilCompact32, strings.ToUpper(uid.NilCompact32))
+	assert.Exactly(t, uid.NilCompact32, strings.ToLower(uid.NilCompact32))
 	assert.Exactly(t, uid.NilCompact64, strings.ToUpper(uid.NilCompact64))
 }
 

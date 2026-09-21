@@ -3,7 +3,6 @@ package uid_test
 import (
 	"slices"
 	"strings"
-	"sync/atomic"
 	"testing"
 	"time"
 
@@ -75,76 +74,4 @@ func TestTimeOverflow(t *testing.T) {
 	id, ok := uid.Parse("ffffffff-ffff-7fff-bfff-ffffffffffff")
 	assert.True(t, ok)
 	assert.True(t, id.Time().IsZero())
-}
-
-func TestV7StrictIsV7(t *testing.T) {
-	freezeNow := time.Now()
-	defer uid.ReseedPRNG()()
-	defer uid.SetNowFunc(func() time.Time { return freezeNow })()
-	id := uid.NewV7Strict()
-	// identity
-	assert.Exactly(t, uid.Version7, id.Version())
-	assert.False(t, id.IsMax())
-	assert.False(t, id.IsNil())
-	assert.False(t, id.Time().IsZero())
-	// randomness preserved
-	assert.True(t, strings.HasSuffix(id.String(), "-9987-7ece6d368aac"))
-	// time
-	assert.Exactly(t, freezeNow.UnixMilli(), id.Time().UnixMilli())
-	id2, ok := uid.Parse(id.String())
-	assert.True(t, ok)
-	assert.Exactly(t, id, id2)
-}
-
-func TestV7StrictAdjacentSlots(t *testing.T) {
-	// use one slot (~244ns) per call: consecutive ids land on adjacent slots.
-	defer uid.ResetV7Strict()
-	base := time.Now().Add(time.Hour).Truncate(time.Millisecond)
-	var calls atomic.Int64
-	defer uid.SetNowFunc(func() time.Time {
-		return base.Add(time.Duration(calls.Add(1)-1) * 245 * time.Nanosecond)
-	})()
-	prev := uid.NewV7Strict()
-	for i := range 4000 {
-		cur := uid.NewV7Strict()
-		if uid.Compare(prev, cur) >= 0 {
-			t.Fatalf("not strictly increasing at %d: %s >= %s", i, prev, cur)
-		}
-		prev = cur
-	}
-}
-
-func TestSanityBatching(t *testing.T) {
-	// use synthetic clock to deterministically cross exactly one ms boundary.
-	// Start 0.5ms into a ms then advance one ~244ns slot per call; 3000 calls span ~0.735ms -> exactly 2 vals.
-	defer uid.ResetV7Strict()
-	base := time.Now().Add(time.Hour).Truncate(time.Millisecond).Add(500 * time.Microsecond)
-	var calls atomic.Int64
-	defer uid.SetNowFunc(func() time.Time {
-		return base.Add(time.Duration(calls.Add(1)-1) * 245 * time.Nanosecond)
-	})()
-	ts1, ts2 := make([]uid.UUID, 0, 3000), make([]uid.UUID, 0, 3000)
-	for range 3000 {
-		id := uid.NewV7Strict()
-		ts1, ts2 = append(ts1, id), append(ts2, id) // fill both arrays instead of cloning later
-	}
-	mss := map[int64]bool{}
-	for _, i := range ts1 {
-		mss[i.Time().UnixMilli()] = true
-	}
-	ts := map[time.Time]bool{}
-	for _, i := range ts1 {
-		ts[i.Time()] = true
-	}
-	// verify setup
-	assert.NotEmpty(t, ts1)
-	assert.NotEmpty(t, ts2)
-	assert.Exactly(t, ts1, ts2)
-	assert.Len(t, mss, 2) // breaking across ms should only have 2 different ms values
-	// check order
-	assert.True(t, slices.IsSortedFunc(ts1, uid.Compare))
-	// check uniqueness
-	assert.Len(t, ts1, len(slices.Compact(ts1)))
-	// check strict monotonicity
-	assert.Len(t, ts1, len(ts))
 }

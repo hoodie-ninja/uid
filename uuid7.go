@@ -3,12 +3,11 @@ package uid
 import (
 	"encoding/binary"
 	"math"
-	"sync"
 	"time"
 )
 
 // NewV7 constructs a new v7 UUID. Enforces method 3 of monotonicity.
-func NewV7() UUID { return make7(tick) }
+func NewV7() UUID { return make7() }
 
 const m = 1_000_000 // ns per ms
 
@@ -31,9 +30,9 @@ func (u UUID) Time() time.Time {
 }
 
 //nolint:mnd,gosec // locality of behavior, false positive index out of range
-func make7(tickFn func() (int64, uint16)) UUID {
+func make7() UUID {
 	var b [16]byte
-	ns, ra := tickFn()
+	ns, ra := tick()
 	if ns < 0 {
 		panic("v7 UUID does not support time before epoch")
 	}
@@ -53,36 +52,6 @@ func make7(tickFn func() (int64, uint16)) UUID {
 func tick() (int64, uint16) {
 	ns := now().UnixNano()
 	return ns, slot(ns)
-}
-
-/*
-NewV7Strict returns a v7 UUID with guaranteed (beyond RFC method 3) local monotonicity.
-You don't need this, if you think you need finer than sub-millisecond precision in IDs, what you really need is a
-sequence generator and not more accurate timekeeping.
-
-Each UUID waits for a unique real-time slot, capping generation at one UUID per ~244ns (less with coarse OS clocks).
-*/
-func NewV7Strict() UUID { return make7(tickBatch) }
-
-//nolint:gochecknoglobals // unexported
-var (
-	mux    sync.Mutex
-	lastMS int64
-	lastRA uint16
-)
-
-// tickBatch reserves a strictly increasing (unix_ts_ms, rand_a) pair; make7 encodes the reserved slot as-is so
-// monotonicity holds by construction.
-func tickBatch() (int64, uint16) {
-	defer mux.Unlock()
-	mux.Lock()
-	for {
-		ns, ra := tick()
-		if ms := ns / m; ms > lastMS || ms == lastMS && ra > lastRA {
-			lastMS, lastRA = ms, ra
-			return ns, ra
-		}
-	}
 }
 
 // unslot returns the first nanosecond of slot randA. Exact inverse of slot: slot(unslot(k))==k for all k.
